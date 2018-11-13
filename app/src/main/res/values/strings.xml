@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">image_loader</string>
+    <string name="app_name">image_loader_cache</string>
     <string name="title_item_list">Items</string>
     <string name="title_item_detail">Item Detail</string>
 

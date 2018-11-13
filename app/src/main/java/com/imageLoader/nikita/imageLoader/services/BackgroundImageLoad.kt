@@ -20,21 +20,21 @@ class BackgroundImageLoad : IntentService("LoadImageService") {
         if (url == null) {
             broadcastIntent.putExtra(DetailFragment.PARAM_STATUS, "fail")
             sendBroadcast(broadcastIntent)
-            Log.e("image:loader", "url is null")
+            Log.e("image_loader_cache", "url is null")
             return
         }
         val regex = Regex("[^a-zA-Z0-9]")
-        val correctWay = regex.replace(url, "")
-        if (fileExist(correctWay)) {
-            loadFileFromStorage(correctWay, broadcastIntent)
+        val correctFile = regex.replace(url, "")
+        if (fileExist(correctFile)) {
+            loadFileFromStorage(correctFile, broadcastIntent)
         } else {
-            loadFileFromInternet(imageUrl,correctWay, broadcastIntent)
+            loadFileFromInternet(imageUrl, correctFile, broadcastIntent)
         }
 
 
     }
 
-    private fun loadFileFromInternet(imageUrl: URL, correctWay:String, broadcastIntent: Intent) {
+    private fun loadFileFromInternet(imageUrl: URL, correctFile: String, broadcastIntent: Intent) {
         try {
             val inputStream = imageUrl.openConnection().getInputStream()
             val bitmap = BitmapFactory.decodeStream(inputStream)
@@ -42,44 +42,50 @@ class BackgroundImageLoad : IntentService("LoadImageService") {
             broadcastIntent.putExtra(DetailFragment.PARAM_STATUS, "ok")
             broadcastIntent.putExtra(DetailFragment.PARAM_RESULT, resultBitmap)
             sendBroadcast(broadcastIntent)
-            saveFileToStorage(correctWay, resultBitmap)
-            Log.d("image_loader", "$correctWay load from internet")
+            saveFileToStorage(correctFile, resultBitmap)
+            Log.d("image_loader_cache", "${File(baseContext.cacheDir, correctFile)} load from internet")
         } catch (e: IOException) {
             broadcastIntent.putExtra(DetailFragment.PARAM_STATUS, "fail")
             sendBroadcast(broadcastIntent)
-            Log.e("image_loader", e.toString())
+            Log.e("image_loader_cache", e.toString())
         } catch (e: IllegalArgumentException) {
             broadcastIntent.putExtra(DetailFragment.PARAM_STATUS, "fail")
             sendBroadcast(broadcastIntent)
-            Log.e("image_loader", e.toString())
+            Log.e("image_loader_cache", e.toString())
         }
     }
 
     private fun loadFileFromStorage(way: String, broadcastIntent: Intent) {
         try {
-
-            val bitmap = BitmapFactory.decodeStream(openFileInput(way))
+            val cache = baseContext.cacheDir
+            val correctFile = File(cache, way).toString()
+            val bitmap = BitmapFactory.decodeStream(FileInputStream(correctFile))
             broadcastIntent.putExtra(DetailFragment.PARAM_STATUS, "ok")
             broadcastIntent.putExtra(DetailFragment.PARAM_RESULT, bitmap)
             sendBroadcast(broadcastIntent)
-            Log.d("image_loader", "file $way load")
+            Log.d("image_loader_cache", "file $correctFile load")
         } catch (e: IOException) {
             broadcastIntent.putExtra(DetailFragment.PARAM_STATUS, "fail")
             sendBroadcast(broadcastIntent)
-            Log.e("image_loader", e.toString())
+            Log.e("image_loader_cache", e.toString())
         }
     }
 
     private fun saveFileToStorage(way: String, bitmap: Bitmap) {
-        val fos = openFileOutput(way, Context.MODE_PRIVATE)
+        val cache = baseContext.cacheDir
+        val correctFile = File(cache, way).path
+        val fos = FileOutputStream(correctFile)
         fos.use {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
         }
-        Log.d("image_loader", "file $way save")
+        Log.d("image_loader_cache", "file $correctFile save")
     }
 
     private fun fileExist(way: String): Boolean {
-        val file = baseContext.getFileStreamPath(way)
-        return file.exists()
+        val cache = baseContext.cacheDir
+        val file = File(cache, way)
+        val result = file.exists()
+        Log.d("image_loader_cache", "file ${file.toString()} exist=$result")
+        return result
     }
 }

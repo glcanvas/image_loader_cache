@@ -16,7 +16,7 @@ import com.imageLoader.nikita.imageLoader.services.BackgroundImageLoad
 
 class DetailFragment : Fragment() {
     companion object {
-        val PROCESS_RESPONSE = "com.image_loader.nikita.image_loader.PROCESS_RESPONSE"
+        val PROCESS_RESPONSE = "com.image_loader_cache.nikita.image_loader_cache.PROCESS_RESPONSE"
         val PARAM_STATUS = "status"
         val PARAM_RESULT = "result"
     }

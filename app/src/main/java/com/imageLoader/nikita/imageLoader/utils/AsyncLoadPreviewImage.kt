@@ -29,7 +29,7 @@ class AsyncLoadPreviewImage(
             element.previewImage = result
             adapter.notifyItemChanged(position)
         } catch (e: IndexOutOfBoundsException) {
-            Log.e("image_loader", e.toString())
+            Log.e("image_loader_cache", e.toString())
         }
 
     }
@@ -43,9 +43,9 @@ class AsyncLoadPreviewImage(
         try {
             return BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream())
         } catch (e: IOException) {
-            Log.e("image_loader", e.toString())
+            Log.e("image_loader_cache", e.toString())
         } catch (e: IllegalArgumentException) {
-            Log.e("image_loader", e.toString())
+            Log.e("image_loader_cache", e.toString())
         }
         return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     }
